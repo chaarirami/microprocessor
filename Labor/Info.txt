@@ -1,0 +1,19 @@
+0. Alle Praktiumsaufgaben liegen zentral auf der EMIL-Seite des Labors für Prozessorsysteme (Link s.o.)
+
+1. Termin: Aufgabe  Nr. 5 Hexadezimal-Tastatur
+Bitte lesen Sie die Aufgabenstellung vor dem Praktikum komplett durch.
+Bearbeiten und protokollieren Sie die Lösungen gemäß den Abschnitten 4.1/4.2/4.3.
+
+2. Termin: Aufgabe Nr.4 LED-Pendel  
+Bitte lesen Sie die Aufgabenstellung vorab komplett durch.
+Bearbeiten die Pflichtaufgaben lt. Aufgabenblatt und protokollieren Sie dann die Lösungen.
+Benutzen Sie das General Purpose Timer Module GPTM !.
+Bitte versuchen Sie auch Aufgabe 4 und/oder 5 zu lösen.
+
+3. Termin: Aufgabe Nr. 1 Digitalvoltmeter (ADC) Bitte arbeiten Sie die Aufgabenstellung wieder vorab komplett durch.
+Bearbeiten und protokollieren Sie dann die Lösungen gemäß den Abschnitten 2.1.1,  2.1.3  und 2.2.1.
+
+4. Termin: Aufgabe Nr. 2 Serielle Schnittstelle
+Bearbeiten und protokollieren Sie die Lösungen gemäß den Abschnitten 3, 4 und 5.
+
+Protokolle bitte spätestens eine Woche nach dem Praktikum abgeben: Raum 880 oder gelbes Postfach des Labors im Erdgeschoss.

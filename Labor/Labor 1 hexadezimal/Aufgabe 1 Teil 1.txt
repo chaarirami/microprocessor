@@ -1,0 +1,30 @@
+//MP Labor 1 Aufgabe 1 Generierung eines Rechtecksignals
+
+#include "tm4c1294ncpdt.h"              //Einbinden der MC-Header
+#include "stdio.h"
+
+#define ON 1600000
+
+void warte (unsigned long zeit){        //Wartefunktion
+  unsigned long i;
+  for (i = 0 ;  i < zeit ;  i++){}
+}
+
+int main() {
+SYSCTL_RCGCGPIO_R = 0x800;           	//clock port M enablen (TAKT) (1<<11) gegen 0x800 getauscht!   |
+
+while((SYSCTL_PRGPIO_R & 0x800) == 0);  //Auf aktuelle Ports warten (busy-wait-loop)
+										// auch mit: SYSCTL_RCGCGPIO_R möglich?
+
+GPIO_PORTM_DEN_R  	=  0x01;             //PM(0) auf enable
+GPIO_PORTM_DIR_R 	=  0x01;             //PM(0) auf output
+GPIO_PORTM_DATA_R 	=  0x0;              //Alle LED's booten
+
+while(1){
+  GPIO_PORTM_DATA_R = 0x01;             //PM(0) auf high
+  warte(ON);                        	//warten
+  GPIO_PORTM_DATA_R = 0x00;             //PM(0) auf low
+  warte(ON);                        	//warten
+  }
+}
+

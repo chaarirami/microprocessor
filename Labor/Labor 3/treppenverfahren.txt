@@ -1,0 +1,27 @@
+#include <stdint.h>
+#include "tm4c1294ncpdt.h"
+
+void main (void) {
+	SYSCTL_RCGCGPIO_R = 0x0E08; // clock enable port M, L, K and D
+	GPIO_PORTD_AHB_DEN_R = 0x03; //enable PD0 and PD1
+	GPIO_PORT_AHB_DIR_R = 0x00; //PD1 and PD2 are inputs
+	GPIO_PORTK_DEN_R = 0xFF; //enable PK0-7
+	GPIO_PORTK_DIR_R = 0xFF; //PK1-7 are outputs
+	GPIO_PORTM_DEN_R = 0xFF; //enable PM0-7
+	GPIO_PORTM_DIR_R = 0xFF; //PM0-7 are outputs
+	GPIO_PORTL_DEN_R = 0x07; //enable PL0-2
+	GPIO_PORTL_DEN_R = 0x07; //PL0-2 are outputs
+	
+	int UE = 0x00; //Entry Voltage
+	int UoutAnalog = 0x00; //analog output voltage (float)
+	int UoutDigital = 0x00; //digital output voltage
+
+	while (1) {
+		while(UE <= UoutAnalog) {
+			UoutDigital = GPIO_PORTK_DATA_R; //read data from port k
+			UoutAnalog = UoutDigital*(5/256); //convert digital to analog
+			UoutDigital++; //increment
+			
+		}
+	}
+}

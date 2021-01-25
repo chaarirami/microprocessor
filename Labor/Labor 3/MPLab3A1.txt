@@ -1,0 +1,94 @@
+/*---------------------------------------------------------------------------------------
+ * Felix Rehaag und Rami Chaari
+ * Aufgabe 1: A/D-Umwandler mittels Treppenverfahren
+ *---------------------------------------------------------------------------------------
+*/
+
+#include "tm4c1294ncpdt.h"
+#include "stdio.h"
+#define DELAY 30e-6
+#define ULSB 19.53125 //mV
+
+void timer_0(float);
+void ausgabe(int);
+
+int main(void)
+{	// Port  Clock Gating Control
+	SYSCTL_RCGCGPIO_R |= 0x800;               					// Clock Port M enablen
+	SYSCTL_RCGCGPIO_R |= 0x400;              					// Clock Port L enablen
+	SYSCTL_RCGCGPIO_R |= 0x200;               					// Clock Port K enablen
+	SYSCTL_RCGCGPIO_R |= 0x008;              					// Clock Port D enablen
+
+	while((SYSCTL_PRGPIO_R & 0x800)==0); 						//Auf Port M warten
+	while((SYSCTL_PRGPIO_R & (0x400)) == 0);    				//auf port L warten
+	while((SYSCTL_PRGPIO_R & 0x200)==0); 						//Auf Port K warten
+	while((SYSCTL_PRGPIO_R & (0x008)) == 0);    				//auf port D warten
+
+    //Aktivierung Pins
+    GPIO_PORTD_AHB_DEN_R |= 0x03;
+    GPIO_PORTK_DEN_R |= 0xFF;
+    GPIO_PORTL_DEN_R |= 0x07;
+    GPIO_PORTM_DEN_R |= 0xFF;
+    // Richtungen der Ports
+    GPIO_PORTD_AHB_DIR_R &= 0xFC;
+    GPIO_PORTK_DIR_R |= 0xFF;
+    GPIO_PORTL_DIR_R |= 0x07;
+    GPIO_PORTM_DIR_R |= 0xFF;
+
+    float U0 = 0.0;
+    float Uout = 0.0;
+    int flag = 1;
+    while(1){
+    	flag = 1;
+    	for(GPIO_PORTK_DATA_R  = 0;((GPIO_PORTK_DATA_R < 255) & (flag));GPIO_PORTK_DATA_R ++){
+    		//Uout = i*ULSB;
+    		if(!(GPIO_PORTD_AHB_DATA_R & 0x02)){
+    			if(GPIO_PORTD_AHB_DATA_R == 0x00){ //comparator
+    				Uout = U0 * ULSB;
+    				GPIO_PORTK_DATA_R = 0x00;
+    				flag = 0;
+    				//printf("%lf\n", Uout);
+    				ausgabe(Uout);
+    			}
+    			U0 = GPIO_PORTK_DATA_R; //zwischenspeichern
+    			timer_0(DELAY);
+    		}
+    	}
+    	
+    	//GPIO_PORTM_DATA_R = GPIO_PORTK_DATA_R;
+    }
+}
+
+void ausgabe(int result){
+	result = result / 10;
+	int U0 = result % 10; //LSB
+	result = result / 10;
+	int U1 = result % 10;
+	result = result / 10;
+	int U2 = result % 10; //MSB
+	
+	printf("%i.%i%i\n", U2,U1,U0);
+	
+	GPIO_PORTL_DATA_R = 0x01; //BCD1 enablen
+	GPIO_PORTM_DATA_R = (U1 << 4) | U0;
+	GPIO_PORTL_DATA_R = 0x00; //BCD1 disablen
+	
+	GPIO_PORTL_DATA_R = 0x02; //BCD2 enablen
+	GPIO_PORTM_DATA_R = (0 << 4) | U2;
+	GPIO_PORTL_DATA_R = 0x00; //BCD2 disablen
+}
+
+void timer_0(float periode){
+	 int wt=0; // aux. variable for very short time wait
+	 SYSCTL_RCGCTIMER_R = 0x00000001; wt++; // clock enable timer
+	 TIMER0_CTL_R &= 0xFFFFFFFE; // stop timer 0
+	 TIMER0_CFG_R =0x00000000; // timer 0 in 32 bit mode
+	 TIMER0_TAMR_R |= 0x02; // timer 0 in periodic mode
+	 TIMER0_TAMR_R &= 0xFFFFFFEF; // timer in downward counting mode
+	 TIMER0_TAILR_R = (16000-1)*periode; // start value 0.1 sec =16MHz/1.6Mio
+	 TIMER0_ICR_R |= 1; // clear timeout flag of timer 0A
+	 TIMER0_CTL_R |= 0x0000001; // start timer 0
+	 while(!(TIMER0_RIS_R & 0x00000001)); // wait and poll flag for timer 0 timeout
+	 TIMER0_ICR_R |= 0x00000001; // clear flag of timer 0
+	 TIMER0_CTL_R |= 0x0000001; // restart timer 0
+ }
